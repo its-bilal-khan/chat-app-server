@@ -32,7 +32,7 @@ const io = socketSr(server,{
     cors: {
         origin: '*',
     }
-  });
+});
 
 //Routes
 
