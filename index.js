@@ -64,7 +64,6 @@ io.on("connection", (socket)=>{
             try {
                 console.log(decodeString(message));
                 const user = getUser(socket.id);
-                sssss
                 console.log(user, getAllUsers(),socket.id);
                 socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
                 callback();
