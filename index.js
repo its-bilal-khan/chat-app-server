@@ -39,39 +39,59 @@ const io = socketSr(server,{
 io.on("connection", (socket)=>{
 
     console.log("we havee a new connection!!!!");
-    try {
+    
         socket.on("join", ({name, room}, callback)=>{
-            console.log(name,room);
-            const {error, user} = addUser({id:socket.id, name, room});
-            
-            if(error) return callback(error);
-            socket.emit('message', getMessage({user:"admin", text:`${user.name}, welcome to the room`}));
-            socket.broadcast.to(user.room).emit("message", getMessage({user:'admin', text:`${user.name}, has joind!`}))
+            try {
+                console.log(name,room);
+                const {error, user} = addUser({id:socket.id, name, room});
+                
+                if(error) return callback(error);
+                socket.emit('message', getMessage({user:"admin", text:`${user.name}, welcome to the room`}));
+                socket.broadcast.to(user.room).emit("message", getMessage({user:'admin', text:`${user.name}, has joind!`}))
+                socket.join(user.room);
 
-            socket.join(user.room);
-
-            callback();
+                callback();
+            } catch (error) {
+                console.log( error.message);
+                fs.appendFile('log.txt', error.message, function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                }); 
+            }
         });
 
         socket.on("sendMessage", (message, callback)=>{
-            console.log(decodeString(message));
-            const user = getUser(socket.id);
-
-            console.log(user, getAllUsers(),socket.id);
-            socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
-            callback();
+            try {
+                console.log(decodeString(message));
+                const user = getUser(socket.id);
+                sssss
+                console.log(user, getAllUsers(),socket.id);
+                socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
+                callback();
+                
+            } catch (error) {
+                console.log( error.message);
+                fs.appendFile('log.txt', error.message, function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                }); 
+            }
         })
         socket.on('disconnect', ()=>{
-            const user = removeUser(socket.id);
-            if(user)
-            console.log(`${user.name} had left !!!!`);
+            try {
+                const user = removeUser(socket.id);
+                if(user)
+                console.log(`${user.name} had left !!!!`);
+                    
+            } catch (error) {
+                console.log( error.message);
+                fs.appendFile('log.txt', error.message, function (err) {
+                    if (err) throw err;
+                    console.log('Saved!');
+                }); 
+            }
         });  
-    } catch (error) {
-        fs.appendFile('mynewfile1.txt', JSON.stringify(error), function (err) {
-            if (err) throw err;
-            console.log('Saved!');
-          }); 
-    }
+    
 });
 
 
