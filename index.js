@@ -1,6 +1,7 @@
 const express = require("express");
 const socketSr = require("socket.io");
 const http = require("http");
+const fs = require('fs');
 const cors = require('cors');
 
 const {
@@ -33,39 +34,44 @@ const io = socketSr(server,{
         origin: '*',
     }
 });
-
 //Routes
 
 io.on("connection", (socket)=>{
 
     console.log("we havee a new connection!!!!");
+    try {
+        socket.on("join", ({name, room}, callback)=>{
+            console.log(name,room);
+            const {error, user} = addUser({id:socket.id, name, room});
+            
+            if(error) return callback(error);
+            socket.emit('message', getMessage({user:"admin", text:`${user.name}, welcome to the room`}));
+            socket.broadcast.to(user.room).emit("message", getMessage({user:'admin', text:`${user.name}, has joind!`}))
 
-    socket.on("join", ({name, room}, callback)=>{
-        console.log(name,room);
-        const {error, user} = addUser({id:socket.id, name, room});
-        
-        if(error) return callback(error);
-        socket.emit('message', getMessage({user:"admin", text:`${user.name}, welcome to the room`}));
-        socket.broadcast.to(user.room).emit("message", getMessage({user:'admin', text:`${user.name}, has joind!`}))
+            socket.join(user.room);
 
-        socket.join(user.room);
+            callback();
+        });
 
-        callback();
-    });
+        socket.on("sendMessage", (message, callback)=>{
+            console.log(decodeString(message));
+            const user = getUser(socket.id);
 
-    socket.on("sendMessage", (message, callback)=>{
-        console.log(decodeString(message));
-        const user = getUser(socket.id);
-
-        console.log(user, getAllUsers(),socket.id);
-        socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
-        callback();
-    })
-    socket.on('disconnect', ()=>{
-        const user = removeUser(socket.id);
-        if(user)
-        console.log(`${user.name} had left !!!!`);
-    });
+            console.log(user, getAllUsers(),socket.id);
+            socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
+            callback();
+        })
+        socket.on('disconnect', ()=>{
+            const user = removeUser(socket.id);
+            if(user)
+            console.log(`${user.name} had left !!!!`);
+        });  
+    } catch (error) {
+        fs.appendFile('mynewfile1.txt', JSON.stringify(error), function (err) {
+            if (err) throw err;
+            console.log('Saved!');
+          }); 
+    }
 });
 
 
