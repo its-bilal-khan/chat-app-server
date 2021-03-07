@@ -8,7 +8,7 @@ return buffArray;
 }
 
 const decodeString = (bufferArray) => {
-    return bufferArray.toString();
+    return bufferArray.toString("UTF-8");
 }
 const getMessage = (respObj)=>{
     let respMessage = JSON.stringify(respObj);

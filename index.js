@@ -1,5 +1,6 @@
 const express = require("express");
 const socketSr = require("socket.io");
+var bodyParser = require('body-parser');
 const http = require("http");
 const fs = require('fs');
 const cors = require('cors');
@@ -19,13 +20,21 @@ const {
 } = require('./helper');
 const PORT = process.env.PORT || 5000;
 
-const router = require("./router");
-
-
 const app = express();
 
+var corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200 
+}
+app.use(cors(corsOptions))
+app.use(bodyParser.json());
+app.use(express.static('Videos'));
+
+const router = require("./router");
 app.use(router)
-app.use(cors())
+
+const uploadRoutes = require("./uploadRoutes");
+app.use("/upload", uploadRoutes)
 
 const server = http.createServer(app);
 
@@ -62,7 +71,7 @@ io.on("connection", (socket)=>{
 
         socket.on("sendMessage", (message, callback)=>{
             try {
-                console.log(decodeString(message));
+                console.log(message,JSON.stringify(decodeString(message)));
                 const user = getUser(socket.id);
                 console.log(user, getAllUsers(),socket.id);
                 socket.to(user.room).emit("message", getMessage({user:user.name, text:decodeString(message)}))
