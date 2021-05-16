@@ -1,10 +1,35 @@
 const express = require("express");
 const fs = require('fs');
-
+const models = require('./models');
 const router = express.Router();
 
-router.get('/', (req, res)=> {
-    res.send("Server is up and running SOON YOU WILL BE ABLE TO SEE THE STATS");
+router.get('/', async (req, res)=> {
+    // const updatedUser = await models.User.findOneAndUpdate({_id:"605112a8517f4b1290346f2a"}, {$push:{friendsId :"60575f2342f17c4a986a2cfd"}})
+    console.log("getUp")
+    const users = await models.User.find({
+        $and: [
+            { 
+                // friendsId:{$elemMatch: {$eq: req.query.id }},
+                $or:[
+                    {
+                        name:{ 
+                            $regex: '.*' + req.query.search + '.*' 
+                        }
+                    },
+                    {
+                        email:{ 
+                            $regex: '.*' + req.query.search + '.*' 
+                        }
+                    }
+                ],  
+            },
+        ],
+        
+    })
+    .populate({path:"friends", select:"name email", })
+    .select("name email friends friendsId");
+    
+    res.send(users);
 });
 
 router.get('/logs', (req, res)=> {

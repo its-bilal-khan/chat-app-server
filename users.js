@@ -1,30 +1,33 @@
-const users = [];
-
-const addUser = ({id, name, room})=>{
-    name = name.trim().toLowerCase();
-    room = room.trim().toLowerCase();
-
-    const existinguser = users.find((user) => user.room === room && user.name === name);
-    if(existinguser){
-        return {user:existinguser}
-        // if(existinguser.isConnected == false)
-        return {error:"Username is already taken"}
-    }
-    const user = {id,name,room};
-    users.push(user);
-    return {user};
-}
-
-const removeUser = (id) => {
-    const index = users.findIndex(user => user.id === id);
-    if(index !== -1){
-       return users.splice(index, 1)[0];
+const User = function(userDetails) {
+    this.details = userDetails;
+    this.friendsId = userDetails.friendsId;
+    this.isFriend = (friendId) => {
+        return this.friendsId.includes(friendId)
     }
 }
+const UserDetails = {
+    users: [],
+    IsAlreadyJoinded: function (userId) {
+        return this.users.find((user) => user.details.id === userId);
+    },
+    AddUser : function ({user}) {
+        const existingUser = this.IsAlreadyJoinded(user.id);
+        if(existingUser){
+            return existingUser;
+        }
+        const newUser = new User(user);
+        this.users.push(newUser);
+        return newUser;
+    },
+    RemoveUser : function (id) {
+        const index = this.users.findIndex(user => user.details.id === id);
+        if(index !== -1){
+           return this.users.splice(index, 1)[0];
+        }
+    },
+    GetUser : function (id){ return this.users.find(user => user.details.id === id) },
+    GetAllUsers : function() { return this.users } ,
+}
 
-const getUser = (id) => users.find(user => user.id === id);
-const getAllUsers = ()=> users;
-const getUserInRoom = (room) => users.filter(user => user.room === room);
 
-
-module.exports = { addUser, removeUser, getUser, getAllUsers, getUserInRoom};
+module.exports = UserDetails;
