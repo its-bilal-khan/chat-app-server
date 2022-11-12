@@ -1,39 +1,44 @@
-const mongoose = require('mongoose');
-var uniqueValidator = require('mongoose-unique-validator');
+import mongoose from 'mongoose';
+import mongooseUniqueValidator from 'mongoose-unique-validator';
 
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-    name: {
-        type:String,
-        required:true,
-    },
-    email:{
-        type: String,
-        required:true,
-        unique : "Email Already Exist",
-        dropDups: true
+const userSchema = new Schema(
+  {
+    userName: {
+      type: String,
+      required: true,
+      unique: 'User name already exist',
+      dropDups: true,
     },
     password: {
-        type:String,
-        required:true
+      type: String,
+      required: true,
     },
-    emailVerifiedAt: {
-        type: Date,
-        required:false
-    },
-    friendsId: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
-    }],
-}, { timestamps: true, toJSON: { virtuals: true } });
+    friendsId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+  },
+  {
+    timestamps: true,
 
-userSchema.plugin(uniqueValidator);
-userSchema.virtual('friends', {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
+);
+
+userSchema.plugin(mongooseUniqueValidator);
+userSchema.virtual(
+  'friends',
+  {
     ref: 'User',
     localField: 'friendsId',
     foreignField: '_id',
-    justOne: false
-  },{ toJSON: { virtuals: true } });
-const UserModel = mongoose.model("User", userSchema);
-
-module.exports = UserModel;
+    justOne: false,
+  },
+  { toJSON: { virtuals: true } },
+);
+export const UserModel = mongoose.model('User', userSchema);

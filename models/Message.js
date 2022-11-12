@@ -1,29 +1,31 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const MessageSchema = new Schema({
-    message:{
-        type:String,
-        default:"NA"
+const MessageSchema = new Schema(
+  {
+    text: {
+      type: String,
+      default: 'NA',
     },
-    attachment:{
-        type:String,
-        default:"NA"
+    to: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
-    attachmentType:{
-        type:String,
-        default:"NA"
+    from: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
-    sender:{
-        type:Schema.Types.ObjectId, ref:"User"
-    },
-    receiver:{
-        type:Schema.Types.ObjectId, ref:"User"
-    },
+    attachments: [
+      {
+        file: String,
+        type: String,
+      },
+    ],
+  },
+  {
+    timestamps: true,
+  },
+);
 
-});
-
-
-const MessageModel = mongoose.model("Message", MessageSchema);
-module.exports = MessageModel;
+export const MessageModel = mongoose.model('Message', MessageSchema);
