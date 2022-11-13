@@ -10,8 +10,8 @@ export class SocketNewConnectionManager {
       userId,
     });
   };
-  handleMessage = (message, cb) => {
-    this.socket.to(message.to).emit('message', message);
+  handleMessage = (data, cb) => {
+    this.socket.to(data.to).emit('message', data.message);
     cb?.();
   };
   handleFriendStatus = async (friendId, cb) => {
