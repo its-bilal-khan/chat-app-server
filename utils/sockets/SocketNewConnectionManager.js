@@ -14,7 +14,7 @@ export class SocketNewConnectionManager {
   };
   handleMessage = (data, cb) => {
     const dMessage = JSON.parse(decodeString(data));
-    this.socket.to(dMessage.to).emit('message', getMessage(dMessage));
+    this.socket.to(dMessage.to).emit('message', data);
     cb?.();
   };
   handleFriendStatus = async (friendId, cb) => {
