@@ -1,3 +1,5 @@
+import { decodeString, getMessage } from '../../helper';
+
 export class SocketNewConnectionManager {
   constructor(io, socket) {
     this.io = io;
@@ -11,7 +13,8 @@ export class SocketNewConnectionManager {
     });
   };
   handleMessage = (data, cb) => {
-    this.socket.to(data.to).emit('message', data.message);
+    const dMessage = JSON.parse(decodeString(data));
+    this.socket.to(dMessage.to).emit('message', getMessage(dMessage));
     cb?.();
   };
   handleFriendStatus = async (friendId, cb) => {
