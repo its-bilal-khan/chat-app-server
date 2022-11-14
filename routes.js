@@ -3,6 +3,7 @@ import path from 'path';
 import multer from 'multer';
 import {
   authController,
+  msgController,
   uploadController,
   userController,
 } from './controllers';
@@ -29,6 +30,7 @@ router.post('/api/user/friend/add', use(userController.AddFriend));
 router.get('/api/users/:id/friends/', use(userController.GetUserFriends));
 router.get('/api/users/:id', use(userController.GetUserById));
 
+router.get('/api/message', use(msgController.get));
 router.post(
   '/api/upload/video',
   upload.single('video'),

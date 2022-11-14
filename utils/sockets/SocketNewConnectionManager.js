@@ -1,4 +1,6 @@
+import { MESSAGE_STATUS } from '../../constants/events.constants';
 import { decodeString, getMessage } from '../../helper';
+import { messageService } from '../../services';
 
 export class SocketNewConnectionManager {
   constructor(io, socket) {
@@ -12,15 +14,44 @@ export class SocketNewConnectionManager {
       userId,
     });
   };
+  #sendSaveMessageStatus = (from, to, savedMessage) => {
+    this.io.to([from, to]).emit('message saved', getMessage(savedMessage));
+  };
+  handleMsgReceivedAck = (data, cb) => {
+    this.socket.to(data.to).emit('message acknowledgement', data);
+
+    messageService
+      .updateMessageStatus(data.id, { status: data.status })
+      .catch(err => console.log(err));
+    cb?.();
+  };
   handleMessage = (data, cb) => {
     const dMessage = JSON.parse(decodeString(data));
-    this.socket.to(dMessage.to).emit('message', data);
-    cb?.();
+
+    this.socket
+      .to(dMessage.to)
+      .timeout(10000)
+      .emit('message', data, (err, data) => {
+        //updateMsg Status
+        if (err) {
+          return;
+        }
+        messageService.saveMessage({ ...dMessage, status: data[0] });
+        cb?.(data[0]);
+      });
   };
   handleFriendStatus = async (friendId, cb) => {
     try {
-      const isUserOnline = await this.getUserOnlineStatues(friendId);
-      cb?.(isUserOnline);
+      const status = await this.getUserOnlineStatues(friendId);
+      console.log(this.socket.userId, friendId);
+      // const messages = await messageService.getMessages(
+      //   this.socket.userId,
+      //   friendId,
+      // );
+      cb?.({
+        status,
+        // messages,
+      });
     } catch (e) {
       console.log(e);
     }

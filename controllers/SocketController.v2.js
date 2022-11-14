@@ -46,6 +46,7 @@ export class SocketController {
       socket.on('friend status', sncm.handleFriendStatus);
       socket.on('typing', sncm.handleTyping);
       socket.on('message', sncm.handleMessage);
+      socket.on('message acknowledgement', sncm.handleMsgReceivedAck);
     } catch (error) {
       console.log(error);
     }

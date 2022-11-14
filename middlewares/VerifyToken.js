@@ -10,7 +10,9 @@ export const verifyTokenMiddleWare = function (req, res, next) {
   try {
     const verified = jwt.verify(token, process.env.JWT_TOKEN);
     req.user = verified.user;
-    req.body.userId = verified?.user?._id;
+    if (req.body) {
+      req.body.userId = verified?.user?._id;
+    }
     next();
   } catch (err) {
     console.log(err);

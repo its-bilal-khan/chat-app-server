@@ -1,24 +1,20 @@
-const models = require('./../models')
-const mongoose = require('mongoose')
-const ResponseHelper = require('./../shared/ResponseHelper')
+import { MessageServiceDto } from '../dtos/message-service.dto';
 
-module.exports = {
-    AddMessage: (msg, callback) => {
-        const dbMessage = {
-            _id: new mongoose.Types.ObjectId().toHexString(), //5cd5308e695db945d3cc81a9
-            text: msg.text,
-            attachments: msg.attachments,
-            from: msg.from,
-            to: msg.to,
-        }
-        const message = new models.Message(dbMessage)
-        message
-            .save()
-            .then((resp) => {
-                callback(resp)
-            })
-            .catch((e) => {
-                resp.status(500).send(ResponseHelper.GetErrorMessage(e))
-            })
-    },
+export class MessageController {
+  constructor(msgService) {
+    this.msgService = new MessageServiceDto(msgService);
+  }
+
+  get = async (req, res) => {
+    const { friendId, start, limit } = req.query;
+    const messages = await this.msgService.getMessages(
+      req.user?._id,
+      friendId,
+      +start,
+      +limit,
+    );
+    res.send({
+      data: messages,
+    });
+  };
 }
