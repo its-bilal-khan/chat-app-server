@@ -21,6 +21,7 @@ const userSchema = new Schema(
         ref: 'User',
       },
     ],
+    chatIds: [String],
   },
   {
     timestamps: true,
@@ -38,6 +39,22 @@ userSchema.virtual(
     localField: 'friendsId',
     foreignField: '_id',
     justOne: false,
+  },
+  { toJSON: { virtuals: true } },
+);
+userSchema.virtual(
+  'lastMessages',
+  {
+    ref: 'Message',
+    localField: 'chatIds',
+    foreignField: 'chatId',
+    justOne: false,
+    options: {
+      sort: {
+        date: -1,
+      },
+      limit: 1,
+    },
   },
   { toJSON: { virtuals: true } },
 );

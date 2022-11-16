@@ -43,14 +43,8 @@ export class SocketNewConnectionManager {
   handleFriendStatus = async (friendId, cb) => {
     try {
       const status = await this.getUserOnlineStatues(friendId);
-      console.log(this.socket.userId, friendId);
-      // const messages = await messageService.getMessages(
-      //   this.socket.userId,
-      //   friendId,
-      // );
       cb?.({
         status,
-        // messages,
       });
     } catch (e) {
       console.log(e);

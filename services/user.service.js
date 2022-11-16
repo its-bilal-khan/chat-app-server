@@ -1,7 +1,8 @@
-import * as models from '../models';
+import { v4 as uuid } from 'uuid';
 export class UserService {
-  constructor(userRepo) {
+  constructor(userRepo, messageService) {
     this.userRepo = userRepo;
+    this.messageService = messageService;
   }
   creatUser = async userDto => this.userRepo.createUser(userDto);
   GetAllUsers = async search =>
@@ -9,8 +10,8 @@ export class UserService {
   GetUserById = async id =>
     this.userRepo.getUserByIdWithFriends(
       id,
-      ['userName', 'friendsId'],
-      ['userName'],
+      ['userName', 'friendsId', 'chatIds'],
+      ['userName', 'chatIds'],
     );
   GetUserFriends = async id =>
     this.userRepo.getUserByIdWithFriends(
@@ -29,14 +30,26 @@ export class UserService {
   AddFriend = async (userId, friendId) => {
     const doesUserExit = await this.userRepo.userExists(friendId);
 
-    const alreadyFriend = await this.userRepo.isAlreadyAFriend(friendId);
+    const alreadyFriend = await this.userRepo.isAlreadyAFriend(
+      userId,
+      friendId,
+    );
     if (alreadyFriend) {
       throw Error.BadRequest('Already a friend');
     }
     if (doesUserExit && !alreadyFriend) {
-      const updatedFriend = await this.userRepo.addFriend(friendId, userId);
-      const updatedUser = await this.userRepo.addFriend(userId, friendId);
-      return resp.send({ updatedUser, updatedFriend });
+      const chatId = uuid();
+      const updatedFriend = await this.userRepo.addFriend(
+        friendId,
+        userId,
+        chatId,
+      );
+      const updatedUser = await this.userRepo.addFriend(
+        userId,
+        friendId,
+        chatId,
+      );
+      return { updatedUser, updatedFriend };
     }
     throw Error.BadRequest('Invalid friend');
   };

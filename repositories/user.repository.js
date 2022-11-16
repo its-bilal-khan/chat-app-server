@@ -25,11 +25,14 @@ export class UserRepository {
     models.UserModel.findById(
       id,
       this.#getDbSelectColumnObj(userSelectedColumns),
-    ).populate({
-      path: 'friends',
-      select: friendSelectedColumns.join(' '),
-    });
-
+    )
+      .populate({
+        path: 'friends',
+        select: friendSelectedColumns.join(' '),
+      })
+      .populate({
+        path: 'lastMessages',
+      });
   searchUserFriends = async (friendId, searchQuery, userSelectedColumns) =>
     models.UserModel.find(
       {
@@ -67,11 +70,12 @@ export class UserRepository {
       _id: id,
     });
 
-  isAlreadyAFriend = async id =>
+  isAlreadyAFriend = async (userId, id) =>
     models.UserModel.exists({
+      _id: userId,
       friendsId: { $elemMatch: { $eq: id } },
     });
-  addFriend = async (userId, friendId) =>
+  addFriend = async (userId, friendId, chatId) =>
     models.UserModel.findOneAndUpdate(
       {
         _id: userId,
@@ -79,6 +83,7 @@ export class UserRepository {
       {
         $push: {
           friendsId: friendId,
+          chatIds: chatId,
         },
       },
       { new: true },

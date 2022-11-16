@@ -32,6 +32,9 @@ const MessageSchema = new Schema({
     enum: Object.keys(MESSAGE_STATUS),
     default: MESSAGE_STATUS.SENT,
   },
+  chatId: {
+    type: String,
+  },
 });
 
 export const MessageModel = mongoose.model('Message', MessageSchema);
