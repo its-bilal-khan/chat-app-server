@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import * as models from './../models';
 export class UserRepository {
   async createUser(userDto) {
@@ -17,22 +18,61 @@ export class UserRepository {
       : models.UserModel.find({}, this.#getDbSelectColumnObj(selectedColumns));
   };
 
-  getUserByIdWithFriends = async (
-    id,
-    userSelectedColumns,
-    friendSelectedColumns,
-  ) =>
-    models.UserModel.findById(
-      id,
-      this.#getDbSelectColumnObj(userSelectedColumns),
-    )
-      .populate({
-        path: 'friends',
-        select: friendSelectedColumns.join(' '),
-      })
-      .populate({
-        path: 'lastMessages',
-      });
+  getUserByIdWithFriends = async id => {
+    return models.UserModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'friendsId',
+          foreignField: '_id',
+          as: 'friends',
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          localField: 'chatIds',
+          foreignField: 'chatId',
+          pipeline: [
+            {
+              $sort: { date: -1 },
+            },
+            {
+              $group: {
+                _id: '$chatId',
+                text: { $first: '$text' },
+                date: { $first: '$date' },
+                chatId: { $first: '$chatId' },
+                id: { $first: '$id' },
+                from: { $first: '$from' },
+                to: { $first: '$to' },
+                isSaved: { $first: '$isSaved' },
+              },
+            },
+          ],
+          as: 'lastMessages',
+        },
+      },
+      {
+        $project: {
+          userName: 1,
+          friendsId: 1,
+          chatIds: 1,
+          friends: 1,
+          lastMessages: 1,
+        },
+      },
+    ]).then(data => data[0] ?? null);
+
+    // return models.UserModel.findById(
+    //   id,
+    //   this.#getDbSelectColumnObj(userSelectedColumns),
+    // ).populate({
+    //   path: 'friends',
+    //   select: friendSelectedColumns.join(' '),
+    // });
+  };
   searchUserFriends = async (friendId, searchQuery, userSelectedColumns) =>
     models.UserModel.find(
       {

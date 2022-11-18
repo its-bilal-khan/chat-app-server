@@ -13,6 +13,7 @@ export class MessageService {
       console.log(error);
     }
   };
+  getMessageByChatId = async chatIds => this.msgRep.getByChatIds(chatIds);
   getMessages = async (from, to, start, limit) =>
     this.msgRep.getMessagesByToAndFrom(from, to, start, limit);
 }

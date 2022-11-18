@@ -7,12 +7,10 @@ export class UserService {
   creatUser = async userDto => this.userRepo.createUser(userDto);
   GetAllUsers = async search =>
     this.userRepo.getUsers(['userName', 'friendsId'], search);
-  GetUserById = async id =>
-    this.userRepo.getUserByIdWithFriends(
-      id,
-      ['userName', 'friendsId', 'chatIds'],
-      ['userName', 'chatIds'],
-    );
+  GetUserById = async id => {
+    const users = await this.userRepo.getUserByIdWithFriends(id);
+    return users;
+  };
   GetUserFriends = async id =>
     this.userRepo.getUserByIdWithFriends(
       id,

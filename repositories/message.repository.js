@@ -20,6 +20,32 @@ export class MessageRepository {
     );
     return messages.reverse();
   };
+  getByChatIds = async chatIds =>
+    models.MessageModel.aggregate([
+      {
+        $sort: { date: -1 },
+      },
+      {
+        $group: {
+          _id: '$chatId',
+          text: { $first: '$text' },
+          date: { $first: '$date' },
+          chatId: { $first: '$chatId' },
+          id: { $first: '$id' },
+          from: { $first: '$from' },
+          to: { $first: '$to' },
+          isSaved: { $first: '$isSaved' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'User',
+          localField: 'to',
+          foreignField: '_id',
+          as: 'Users',
+        },
+      },
+    ]);
   create = async message => {
     const msg = new models.MessageModel(message);
     const savedMsg = await msg.save();

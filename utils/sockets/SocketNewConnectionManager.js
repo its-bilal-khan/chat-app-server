@@ -34,6 +34,10 @@ export class SocketNewConnectionManager {
       .emit('message', data, (err, data) => {
         //updateMsg Status
         if (err) {
+          messageService.saveMessage({
+            ...dMessage,
+            status: MESSAGE_STATUS.SENT,
+          });
           return;
         }
         messageService.saveMessage({ ...dMessage, status: data[0] });
