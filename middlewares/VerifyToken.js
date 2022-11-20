@@ -15,7 +15,7 @@ export const verifyTokenMiddleWare = function (req, res, next) {
     }
     next();
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     res.status(401).send('Invalid Token');
   }
 };

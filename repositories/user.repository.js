@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { MESSAGE_STATUS } from '../constants/events.constants';
 import * as models from './../models';
 export class UserRepository {
   async createUser(userDto) {
@@ -41,6 +42,20 @@ export class UserRepository {
             {
               $group: {
                 _id: '$chatId',
+                totalUnSeen: {
+                  $sum: {
+                    $cond: [
+                      {
+                        $and: [
+                          { $ne: ['$status', MESSAGE_STATUS.SEEN] },
+                          { $eq: ['$to', new mongoose.Types.ObjectId(id)] },
+                        ],
+                      },
+                      1,
+                      0,
+                    ],
+                  },
+                },
                 text: { $first: '$text' },
                 date: { $first: '$date' },
                 chatId: { $first: '$chatId' },
@@ -48,6 +63,7 @@ export class UserRepository {
                 from: { $first: '$from' },
                 to: { $first: '$to' },
                 isSaved: { $first: '$isSaved' },
+                status: { $first: '$status' },
               },
             },
           ],
@@ -61,6 +77,7 @@ export class UserRepository {
           chatIds: 1,
           friends: 1,
           lastMessages: 1,
+          toltalUnSeen: 1,
         },
       },
     ]).then(data => data[0] ?? null);

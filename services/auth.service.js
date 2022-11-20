@@ -3,7 +3,6 @@ export class AuthService {
     this.userService = userService;
   }
   validateUser = async validateUser => {
-    console.log(validateUser);
     const user = await this.userService.getUserWithPasswordByUserName(
       validateUser,
     );

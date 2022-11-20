@@ -1,4 +1,4 @@
-import { MESSAGE_STATUS } from '../../constants/events.constants';
+import { MESSAGE_STATUS, USER_STATUS } from '../../constants/events.constants';
 import { decodeString, getMessage } from '../../helper';
 import { messageService } from '../../services';
 
@@ -21,27 +21,36 @@ export class SocketNewConnectionManager {
     this.socket.to(data.to).emit('message acknowledgement', data);
 
     messageService
-      .updateMessageStatus(data.id, { status: data.status })
+      .updateMessageStatus(data.id, {
+        status: data.status,
+        userStatus: USER_STATUS.ONLINE,
+      })
       .catch(err => console.log(err));
     cb?.();
   };
   handleMessage = (data, cb) => {
     const dMessage = JSON.parse(decodeString(data));
-
+    if (dMessage.userStatus === USER_STATUS.OFFLINE) {
+      messageService.saveMessage({
+        ...dMessage,
+        status: MESSAGE_STATUS.SENT,
+      });
+      return;
+    }
     this.socket
       .to(dMessage.to)
       .timeout(10000)
       .emit('message', data, (err, data) => {
-        //updateMsg Status
         if (err) {
           messageService.saveMessage({
             ...dMessage,
             status: MESSAGE_STATUS.SENT,
+            userStatus: USER_STATUS.OFFLINE,
           });
           return;
         }
         messageService.saveMessage({ ...dMessage, status: data[0] });
-        cb?.(data[0]);
+        cb(data[0]);
       });
   };
   handleFriendStatus = async (friendId, cb) => {

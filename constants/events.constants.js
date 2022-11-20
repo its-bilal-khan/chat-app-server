@@ -16,3 +16,7 @@ export const MESSAGE_STATUS = Object.freeze({
   RECEIVED: 'RECEIVED',
   SEEN: 'SEEN',
 });
+export const USER_STATUS = Object.freeze({
+  ONLINE: 'ONLINE',
+  OFFLINE: 'OFFLINE',
+});

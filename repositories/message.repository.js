@@ -68,7 +68,10 @@ export class MessageRepository {
         id,
       });
       if (msgExists) {
-        return this.update(id, { status: data.status });
+        return this.update(id, {
+          status: data.status,
+          userStatus: data.userStatus,
+        });
       }
       console.log('Message not found');
     } catch (error) {
