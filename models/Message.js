@@ -20,8 +20,7 @@ const MessageSchema = new Schema({
     ref: 'User',
   },
   date: {
-    type: Date,
-    index: true,
+    type: Number,
   },
   isSaved: {
     type: Boolean,

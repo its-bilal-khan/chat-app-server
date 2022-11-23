@@ -14,6 +14,7 @@ export class MessageService {
     }
   };
   getMessageByChatId = async chatIds => this.msgRep.getByChatIds(chatIds);
-  getMessages = async (from, to, start, limit) =>
-    this.msgRep.getMessagesByToAndFrom(from, to, start, limit);
+  getMessages = async (chatId, start, limit) =>
+    this.msgRep.getMessagesByChatId(chatId, start, limit);
+  getMessagesByChatIds = async chatIds => this.msgRep.getByChatIds(chatIds);
 }

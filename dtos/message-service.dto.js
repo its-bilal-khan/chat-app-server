@@ -3,5 +3,6 @@ export class MessageServiceDto {
     this.saveMessage = handlers.saveMessage;
     this.updateMessageStatus = handlers.updateMessageStatus;
     this.getMessages = handlers.getMessages;
+    this.getMessagesByChatIds = handlers.getMessagesByChatIds;
   }
 }

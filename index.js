@@ -1,6 +1,6 @@
 import dotEnv from 'dotenv';
 dotEnv.config();
-
+process.env.TZ = 'Asia/Karachi';
 import app from './express-config';
 import { socketController } from './controllers';
 import http from 'http';

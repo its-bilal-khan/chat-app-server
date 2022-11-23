@@ -6,13 +6,16 @@ export class MessageController {
   }
 
   get = async (req, res) => {
-    const { friendId, start, limit } = req.query;
-    const messages = await this.msgService.getMessages(
-      req.user?._id,
-      friendId,
-      +start,
-      +limit,
-    );
+    const { chatId, start, limit } = req.query;
+    const messages = await this.msgService.getMessages(chatId, +start, +limit);
+    res.send({
+      data: messages,
+    });
+  };
+
+  getChats = async (req, res) => {
+    const { chatIds } = req.query;
+    const messages = await this.msgService.getMessagesByChatIds(chatIds);
     res.send({
       data: messages,
     });

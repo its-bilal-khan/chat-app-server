@@ -37,7 +37,6 @@ export class AuthController {
     );
 
     delete user.password;
-    delete user.friendsId;
 
     return res.send({ accessToken, user });
   }

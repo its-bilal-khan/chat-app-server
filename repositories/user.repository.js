@@ -8,10 +8,7 @@ export class UserRepository {
   }
   #getDbSelectColumnObj = selectedColumns => selectedColumns.join(' ');
 
-  getUserByUserName = async userName =>
-    models.UserModel.findOne({ userName }).select(
-      'userName password friendsId',
-    );
+  getUserByUserName = async userName => models.UserModel.findOne({ userName });
 
   getUsers = async (selectedColumns = [], search) => {
     return search

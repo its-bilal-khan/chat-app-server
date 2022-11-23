@@ -1,19 +1,9 @@
 import * as models from './../models';
 export class MessageRepository {
-  getMessagesByToAndFrom = async (from, to, start = 0, limit = 50) => {
-    // from = userid and to
+  getMessagesByChatId = async (chatId, start = 0, limit = 50) => {
     const messages = await models.MessageModel.find(
       {
-        $or: [
-          {
-            from,
-            to,
-          },
-          {
-            from: to,
-            to: from,
-          },
-        ],
+        chatId,
       },
       null,
       { skip: start, limit, sort: { date: -1 } },
@@ -23,30 +13,22 @@ export class MessageRepository {
   getByChatIds = async chatIds =>
     models.MessageModel.aggregate([
       {
+        $match: {
+          chatIds: { $in: chatIds },
+        },
+      },
+      {
         $sort: { date: -1 },
       },
       {
         $group: {
           _id: '$chatId',
-          text: { $first: '$text' },
-          date: { $first: '$date' },
-          chatId: { $first: '$chatId' },
-          id: { $first: '$id' },
-          from: { $first: '$from' },
-          to: { $first: '$to' },
-          isSaved: { $first: '$isSaved' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'User',
-          localField: 'to',
-          foreignField: '_id',
-          as: 'Users',
+          chats: {},
         },
       },
     ]);
   create = async message => {
+    console.log('messgaae::', message);
     const msg = new models.MessageModel(message);
     const savedMsg = await msg.save();
     return savedMsg.toObject();
